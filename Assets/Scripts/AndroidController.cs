@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System;
 
 public class AndroidController : MonoBehaviour {
 
@@ -32,6 +34,10 @@ public class AndroidController : MonoBehaviour {
 
 	public ParallaxScroll parallax;
 
+    public GameObject restartButton;
+
+    public Text coinCount;
+
 	// Use this for initialization
 	void Start () {
 		animator = GetComponent<Animator>();	
@@ -39,10 +45,19 @@ public class AndroidController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
-	}
+        UpdateUI();
+    }
 
-	void FixedUpdate () 
+    void UpdateUI()
+    {
+        coinCount.text = coins.ToString();
+        if (dead && grounded)
+        {
+            restartButton.SetActive(true);
+        }
+    }
+
+    void FixedUpdate () 
 	{
 		bool jetpackActive = Input.GetButton("Fire1");
 		
@@ -67,9 +82,9 @@ public class AndroidController : MonoBehaviour {
 		AdjustFootstepsAndJetpackSound(jetpackActive);
 
 		parallax.offset = transform.position.x;
-	} 
+	}
 
-	void UpdateGroundedStatus()
+    void UpdateGroundedStatus()
 	{
 		//1
 		grounded = Physics2D.OverlapCircle(groundCheckTransform.position, 0.1f, groundCheckLayerMask);
@@ -112,38 +127,10 @@ public class AndroidController : MonoBehaviour {
 		AudioSource.PlayClipAtPoint(coinCollectSound, transform.position);
 	}
 
-	void OnGUI()
-	{
-		DisplayCoinsCount();
-
-		DisplayRestartButton();
-	}
-
-	void DisplayCoinsCount()
-	{
-		Rect coinIconRect = new Rect(10, 10, 32, 32);
-		GUI.DrawTexture(coinIconRect, coinIconTexture);                         
-		
-		GUIStyle style = new GUIStyle();
-		style.fontSize = 30;
-		style.fontStyle = FontStyle.Bold;
-		style.normal.textColor = Color.yellow;
-		
-		Rect labelRect = new Rect(coinIconRect.xMax, coinIconRect.y, 60, 32);
-		GUI.Label(labelRect, coins.ToString(), style);
-	}
-
-	void DisplayRestartButton()
-	{
-		if (dead && grounded)
-		{
-			Rect buttonRect = new Rect(Screen.width * 0.35f, Screen.height * 0.45f, Screen.width * 0.30f, Screen.height * 0.1f);
-			if (GUI.Button(buttonRect, "Tap to restart!"))
-			{
-                SceneManager.LoadScene (SceneManager.GetActiveScene().name);
-			};
-		}
-	}
+    public void OnRestartClicked()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
 	void AdjustFootstepsAndJetpackSound(bool jetpackActive)    
 	{
